@@ -1,28 +1,44 @@
-# Esta clase llamada producto, asigna una serie de atributos base que se utilzaran mas adelante
+# Clase base para los productos
 class Producto:
-    def __init__(self, nombre, precio, cantidad, atributo_extra=None, valor_extra=None):  #Se agrega el espacio para posibles atributos adicionales
+    def __init__(self, nombre, precio, cantidad, atributo_extra=None, valor_extra=None):
         self.nombre = nombre
         self.precio = precio
         self.cantidad = cantidad
         if atributo_extra:
-            setattr(self, atributo_extra, valor_extra) #En caso de atributo extra se agrega 
+            setattr(self, atributo_extra, valor_extra)  # Añadir atributo extra
 
-def main(): #En esta funcion se inicia y dentro se crea la lista del inventario
+# Clase derivada para productos electrónicos
+class ProductoElectronico(Producto):
+    def __init__(self, nombre, precio, cantidad, marca, modelo, garantia):
+        super().__init__(nombre, precio, cantidad)  # Llamada al constructor de Producto
+        self.marca = marca
+        self.modelo = modelo
+        self.garantia = garantia
+
+    def probar(self):
+        print(f"{self.nombre} prende y funciona correctamente")
+
+# Función principal
+def main():
+    # Lista inicial de productos
     inventario = [
         Producto("Pan", 10, 20),
         Producto("Leche", 30, 15),
-        Producto("Arroz", 18.50, 30)
+        Producto("Arroz", 18.50, 30),
+        ProductoElectronico("TV", 1500, 1, "Sony", "X100", "2 años"),
+        ProductoElectronico("Cafetera", 350, 1, "Oster", "Model 3000", "1 año")
     ]
 
-    while True: #Bucle condicional tipo while para mantener al usuario hasta que decida salir del programa
+    while True:
         print("\n=== La Tienda de la Esquina ===")
         print("1. Agregar nuevo producto")
         print("2. Ver inventario completo")
-        print("3. Salir")
+        print("3. Comprobar producto electronico")
+        print("4. Salir")
         
         opcion = input("Seleccione una opción: ")
-        
-        if opcion == '1': #Condicional para opcion numero 1, donde se agrega un nuevo producto y sus atributos
+
+        if opcion == '1':  # Opción para agregar un nuevo producto
             nombre = input("\nNombre del producto: ")
             
             while True:
@@ -39,12 +55,12 @@ def main(): #En esta funcion se inicia y dentro se crea la lista del inventario
                 except ValueError:
                     print("Error: Ingrese un valor entero válido para la cantidad")
             
-            agregar_extra = input("¿Desea agregar un atributo adicional? (s/n): ").lower() #Aqui el programa pregunta al usuario si requiere un atributo adicional
+            agregar_extra = input("¿Desea agregar un atributo adicional? (s/n): ").lower()
             
             if agregar_extra == 's':
                 while True:
                     atributo = input("Nombre del atributo adicional: ")
-                    if atributo.lower() in ['nombre', 'precio', 'cantidad']: #Aqui evita que se usen nombres reservados para otros atributos
+                    if atributo.lower() in ['nombre', 'precio', 'cantidad']:  
                         print("Error: Este nombre está reservado para atributos básicos")
                     else:
                         break
@@ -55,27 +71,48 @@ def main(): #En esta funcion se inicia y dentro se crea la lista del inventario
             
             inventario.append(nuevo_producto)
             print(f"\nProducto '{nombre}' agregado exitosamente!")
-        
-        elif opcion == '2': #Opcion para visualizar el inventario de la tienda incluyendo productos agregados
+
+        elif opcion == '2':  # Opción para ver el inventario
             print("\n=== Inventario de la Tienda ===")
             for producto in inventario:
                 print(f"\nNombre: {producto.nombre}")
                 print(f"Precio: ${producto.precio:.2f}")
                 print(f"Stock: {producto.cantidad} unidades")
                 
-              
-                atributos = vars(producto)   # Muestra atributos adicionales
-                for attr in ['nombre', 'precio', 'cantidad']:
-                    atributos.pop(attr, None)
+                # Si el producto es electrónico, mostrar detalles adicionales
+                if isinstance(producto, ProductoElectronico):
+                    print(f"Marca: {producto.marca}")
+                    print(f"Modelo: {producto.modelo}")
+                    print(f"Garantía: {producto.garantia}")
                 
-                for atributo, valor in atributos.items():
-                    print(f"{atributo.capitalize()}: {valor}")
-            
+                # Mostrar atributos adicionales, si existen
+                for atributo, valor in vars(producto).items():
+                    if atributo not in ['nombre', 'precio', 'cantidad', 'marca', 'modelo', 'garantia']:
+                        print(f"{atributo.capitalize()}: {valor}")
+
             print("\n" + "="*30)
+
+        elif opcion == '3':  # Opción para verificar si un producto electronico funciona
+            producto_funciona = input("\nNombre del producto: ")
+            # Buscar el producto en el inventario
+            producto_encontrado = None
+            for producto in inventario:
+                if producto.nombre.lower() == producto_funciona.lower() and isinstance(producto, ProductoElectronico):
+                    producto_encontrado = producto
+                    break
+            
+            if producto_encontrado:
+                producto_encontrado.probar()
+            else:
+                print("Producto no encontrado o no es un producto electrónico")
         
-        elif opcion == '3': #Sale del programa
+        elif opcion == '4':  # Opción para salir
             print("\nGracias por usar nuestro sistema. ¡Hasta pronto!")
             break
         
         else:
-            print("\nOpción no válida. Por favor seleccione 1, 2 o 3")
+            print("\nOpción no válida. Por favor seleccione 1, 2, 3 o 4")
+
+# Iniciar el programa
+if __name__ == "__main__":
+    main()
